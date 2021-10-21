@@ -10,10 +10,11 @@ namespace TMAS.DAL.Interfaces
 {
     public interface IColumnRepository:IBaseRepository
     {
-        IEnumerable<Column> GetAll(int boardId);
-        Task<Column> GetOne(int id);
+        Task<IEnumerable<Column>> GetAll(int boardId);
+        Task<Column> GetOne(int columnId);
         Task<Column> Create(Column column);
-        Column Update(Column column);
-        Column Delete(int id);
+        Task<Column> Update(Column column);
+        Task<Column> Delete(int id);
+        Task<List<Column>> GetAllWithSkip(int boardId, int position);
     }
 }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMAS.DAL.Interfaces.BaseInterfaces;
 
 namespace TMAS.DAL.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepository:IBaseRepository
     {
 
     }

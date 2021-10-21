@@ -19,48 +19,62 @@ namespace TMAS.DAL.Repositories
             db =context;
         }
 
-        public IEnumerable<Column> GetAll(int boardId)
+        public async Task<IEnumerable<Column>> GetAll(int boardId)
         {
-            return db.Columns
+            return await db.Columns
+                .AsNoTracking()
                 .Where(x => x.BoardId == boardId)
                 .Where(x => x.IsActive == true)
-                .OrderBy(x=>x.SortBy);
+                .OrderBy(x=>x.SortBy)
+                .ToListAsync();
         }
+
+        public async Task<List<Column>> GetAllWithSkip(int boardId, int position)
+        {
+           var columns=await db.Columns
+                .Where(x => x.BoardId == boardId)
+                .Where(x => x.IsActive == true)
+                .OrderBy(x => x.SortBy)
+                .Skip(position)
+                .ToListAsync();
+            return columns;
+        }
+
+
         public async Task<Column> GetOne(int columnId)
         {
-            return await db.Columns.FirstOrDefaultAsync(i => i.Id == columnId);
+            var column= await db.Columns.FirstOrDefaultAsync(i => i.Id == columnId);
+            return column;
         }
 
         public async Task<Column> Create(Column column)
         {
-            await db.Columns.AddAsync(column);
+            db.Columns.Add(column);
             await db.SaveChangesAsync();
             return column;
         }
 
-        public Column Update(Column column)
+        public async Task<Column> Update(Column column)
         {
-            Column updatedColumn = db.Columns.FirstOrDefault(x => x.Id == column.Id);
-            updatedColumn.Title = column.Title;
-            updatedColumn.UpdatedDate = DateTime.Now;
-            db.SaveChanges();
-            return updatedColumn;
+            db.Columns.Update(column);
+            await db.SaveChangesAsync();
+            return column;
         }
 
-        public Column Delete(int id)
+        public async Task<Column> Delete(int id)
         {
-            Column deletedColumn = db.Columns.FirstOrDefault(x => x.Id == id);
+            Column deletedColumn = await db.Columns.FirstOrDefaultAsync(x => x.Id == id);
             if (deletedColumn != null)
             {
 
                 deletedColumn.IsActive = false;
                 deletedColumn.UpdatedDate = DateTime.Now;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return deletedColumn;
             }
             else
             {
-                return default;
+                return null;
             }
 
         }

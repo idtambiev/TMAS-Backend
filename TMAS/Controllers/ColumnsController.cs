@@ -8,61 +8,73 @@ using System.Threading.Tasks;
 using TMAS.BLL.Services;
 using TMAS.DB.Models;
 using TMAS.Controllers.Base;
-using TMAS.DB.DTO;
+using TMAS.DAL.DTO;
+using TMAS.BLL.Interfaces;
+using TMAS.DAL.DTO.View;
 
 namespace TMAS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ColumnsController : ControllerBase
+    public class ColumnsController : BaseController
     {
-        private readonly ColumnService _columnService;
+        private readonly IColumnService _columnService;
 
-        public ColumnsController(ColumnService service)
+        public ColumnsController(IColumnService service)
         {
             _columnService = service;
         }
 
         [HttpGet("get")]
         [Authorize]
-        public async Task<ActionResult<Column>> GetColumns(int id)
+        public async Task<ActionResult<IEnumerable<ColumnViewDTO>>> GetColumns([FromQuery]int id)
         {
-            return Ok(await _columnService.GetAll(id));
+            var columns = await _columnService.GetAll(id);
+            return Ok(columns);
         }
 
         [HttpGet("get/one")]
         [Authorize]
-        public async Task<ActionResult<Column>> GetOneColumn(int columnId)
+        public async Task<ActionResult<ColumnViewDTO>> GetOneColumn([FromQuery] int id)
         {
-            return Ok(await _columnService.GetOne(columnId));
+            var column = await _columnService.GetOne(id);
+            return Ok(column);
         }
 
         [HttpPost("create")]
         [Authorize]
-        public async Task<ActionResult<Column>> CreateNewColumn(ColumnViewDTO column)
+        public async Task<ActionResult<ColumnViewDTO>> CreateNewColumn([FromBody]ColumnViewDTO column)
         {
-            return Ok(await _columnService.Create(column));
+            Guid userId = GetUserId();
+            var createResult = await _columnService.Create(column,userId);
+            return Ok(createResult);
         }
 
-        [HttpPut("update")]
+        [HttpGet("update")]
         [Authorize]
-        public async Task<ActionResult<Column>> UpdateColumn(Column column)
+        public async Task<ActionResult<ColumnViewDTO>> UpdateColumn([FromQuery] int id,string title)
         {
-            return Ok(await _columnService.Update(column));
+            Guid userId = GetUserId();
+            var updateResult = await _columnService.UpdateTitle(id,title,userId);
+            return Ok(updateResult);
         }
 
         [HttpDelete("delete")]
         [Authorize]
-        public async Task<ActionResult<Column>> DeleteColumn(int id)
+        public async Task<ActionResult<ColumnViewDTO>> DeleteColumn([FromQuery] int id)
         {
-            return Ok(await _columnService.Delete(id));
+            Guid userId = GetUserId();
+            var column = await _columnService.Delete(id,userId);
+            return Ok(column);
         }
 
         [HttpPut("move")]
         [Authorize]
-        public async Task<ActionResult<Card>> MoveColumn(Column column)
+        public async Task<ActionResult<ColumnViewDTO>> MoveColumn([FromBody] ColumnViewDTO column)
         {
-            return Ok(await _columnService.Move(column));
+            Guid userId = GetUserId();
+            var moveResult = await _columnService.Move(column,userId);
+            return Ok(moveResult);
         }
 
     }

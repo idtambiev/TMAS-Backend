@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace TMAS.DB.Migrations
+namespace TMAS.BLL.Migrations
 {
-    public partial class NewMigration : Migration
+    public partial class NewMigration3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

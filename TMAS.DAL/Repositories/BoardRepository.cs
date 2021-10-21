@@ -21,13 +21,15 @@ namespace TMAS.DAL.Repositories
         public async Task<IEnumerable<Board>> GetAll(Guid userId)
         {
             return await db.Boards
+                .AsNoTracking()
                 .Where(x=>x.BoardUserId==userId)
                 .Where(x=>x.IsActive==true)
                 .ToListAsync();
         }
         public async Task<Board> GetOne(int boardId)
         {
-            return await db.Boards.FirstOrDefaultAsync(i=>i.Id== boardId);
+            return await db.Boards
+                .FirstOrDefaultAsync(x => x.Id == boardId);
         }
 
         public async Task<IEnumerable<Board>> FindBoard(Guid id,string search)
@@ -47,19 +49,19 @@ namespace TMAS.DAL.Repositories
 
         public async Task<Board> Update(Board board)
         {
-            Board updatedBoard = db.Boards.FirstOrDefault(x => x.Id == board.Id);
+            Board updatedBoard =await db.Boards.FirstOrDefaultAsync(x => x.Id == board.Id);
             updatedBoard.Title = board.Title;
             updatedBoard.UpdatedDate = DateTime.Now;
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return updatedBoard;
         }
 
         public async Task<Board> Delete(int id)
         {
-            Board deletedBoard = db.Boards.FirstOrDefault(x => x.Id == id);
+            Board deletedBoard =await db.Boards.FirstOrDefaultAsync(x => x.Id == id);
             deletedBoard.IsActive = false;
             deletedBoard.UpdatedDate = DateTime.Now;
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return deletedBoard;
         }
 

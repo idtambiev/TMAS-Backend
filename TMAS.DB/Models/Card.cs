@@ -11,6 +11,7 @@ namespace TMAS.DB.Models
 {
     public class Card : IEntity, IAuditTabeEntity
     {
+
         public int Id { get; set; }
         public DateTime ExecutionPeriod { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -18,10 +19,10 @@ namespace TMAS.DB.Models
         public string Title { get; set; }
         public int SortBy { get; set; }
         public string Text { get; set; }
-        public Boolean IsDone { get; set; }
-        public Boolean IsActive { get; set; }
+        public bool IsDone { get; set; }
+        public bool IsActive { get; set; }
         public int ColumnId { get; set; }
         public Column Column { get; set; }
-
+        public ICollection<File> Files { get; set; }
     }
 }

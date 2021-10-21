@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMAS.DB.DTO
+namespace TMAS.DAL.DTO.Created
 {
-    public class BoardViewDTO
+    public class CardContentDTO
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Text { get; set; }
+        public DateTime ExecutionPeriod { get; set; }
     }
 }

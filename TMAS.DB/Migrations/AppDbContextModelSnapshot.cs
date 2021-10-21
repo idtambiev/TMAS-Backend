@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TMAS.DB.Context;
 
-namespace TMAS.DB.Migrations
+namespace TMAS.BLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -150,6 +150,28 @@ namespace TMAS.DB.Migrations
                     b.ToTable("Boards");
                 });
 
+            modelBuilder.Entity("TMAS.DB.Models.BoardsAccess", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BoardId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BoardId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BoardsAccesses");
+                });
+
             modelBuilder.Entity("TMAS.DB.Models.Card", b =>
                 {
                     b.Property<int>("Id")
@@ -225,6 +247,35 @@ namespace TMAS.DB.Migrations
                     b.ToTable("Columns");
                 });
 
+            modelBuilder.Entity("TMAS.DB.Models.File", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CardId");
+
+                    b.ToTable("Files");
+                });
+
             modelBuilder.Entity("TMAS.DB.Models.History", b =>
                 {
                     b.Property<int>("Id")
@@ -242,6 +293,9 @@ namespace TMAS.DB.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("BoardId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -257,6 +311,8 @@ namespace TMAS.DB.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("BoardId");
 
                     b.ToTable("Histories");
                 });
@@ -339,6 +395,9 @@ namespace TMAS.DB.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Photo")
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -425,6 +484,25 @@ namespace TMAS.DB.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TMAS.DB.Models.BoardsAccess", b =>
+                {
+                    b.HasOne("TMAS.DB.Models.Board", "Board")
+                        .WithMany("BoardsAccesses")
+                        .HasForeignKey("BoardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TMAS.DB.Models.User", "User")
+                        .WithMany("BoardsAccesses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Board");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TMAS.DB.Models.Card", b =>
                 {
                     b.HasOne("TMAS.DB.Models.Column", "Column")
@@ -447,6 +525,17 @@ namespace TMAS.DB.Migrations
                     b.Navigation("Board");
                 });
 
+            modelBuilder.Entity("TMAS.DB.Models.File", b =>
+                {
+                    b.HasOne("TMAS.DB.Models.Card", "Card")
+                        .WithMany("Files")
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+                });
+
             modelBuilder.Entity("TMAS.DB.Models.History", b =>
                 {
                     b.HasOne("TMAS.DB.Models.User", "User")
@@ -455,12 +544,29 @@ namespace TMAS.DB.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TMAS.DB.Models.Board", "Board")
+                        .WithMany("Histories")
+                        .HasForeignKey("BoardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Board");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("TMAS.DB.Models.Board", b =>
                 {
+                    b.Navigation("BoardsAccesses");
+
                     b.Navigation("Columns");
+
+                    b.Navigation("Histories");
+                });
+
+            modelBuilder.Entity("TMAS.DB.Models.Card", b =>
+                {
+                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("TMAS.DB.Models.Column", b =>
@@ -471,6 +577,8 @@ namespace TMAS.DB.Migrations
             modelBuilder.Entity("TMAS.DB.Models.User", b =>
                 {
                     b.Navigation("Boards");
+
+                    b.Navigation("BoardsAccesses");
 
                     b.Navigation("Histories");
                 });

@@ -18,18 +18,11 @@ namespace TMAS.DB.Models.Enums
         UpdateColumn = 7,
         MoveColumn = 8,
         CheckedCard=9,
-        UncheckedCard=10
-        //AddCard=0,
-        //EditCard=1,
-        //DeleteCard=2,
-        //AddColumn=3,
-        //EditColumn=4,
-        //DeleteColumn=5,
-        //CheckCardDone=6,
-        //CheckCardUndone=7,
-        //MoveCard=8,
-        //AddBoard=9,
-        //DeleteBoard=10,
-        //EditBoard=11
+        UncheckedCard=10,
+        AddedDescription = 11,
+        EditedDescription = 12,
+        ChangeExecutionPeriod = 13,
+        AssignUser=14,
+        UnassignUser=15
     }
 }

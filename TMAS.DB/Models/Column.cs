@@ -15,7 +15,7 @@ namespace TMAS.DB.Models
         public DateTime UpdatedDate { get; set; }
         public string Title { get; set; }
         public int SortBy { get; set; }
-        public Boolean IsActive { get; set; }
+        public bool IsActive { get; set; }
         public List<Card> Cards { get; set; }
         
         public int BoardId { get; set; }

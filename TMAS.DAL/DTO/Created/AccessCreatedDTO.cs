@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMAS.DB.DTO
+namespace TMAS.DAL.DTO.Created
 {
-    public class ColumnViewDTO
+    public class AccessCreatedDTO
     {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public int SortBy { get; set; }
         public int BoardId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

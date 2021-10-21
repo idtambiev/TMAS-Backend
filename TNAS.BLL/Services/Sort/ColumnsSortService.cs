@@ -4,70 +4,66 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMAS.BLL.Interfaces;
+using TMAS.DAL.DTO.View;
+using TMAS.DAL.Interfaces;
 using TMAS.DB.Context;
 using TMAS.DB.Models;
 
 namespace TMAS.BLL.Services
 {
-    public class ColumnsSortService
+    public class ColumnsSortService:IColumnsSortService
     {
 
-        private AppDbContext db;
-        public ColumnsSortService(AppDbContext context)
+        private readonly IColumnRepository _columnRepository;
+        public ColumnsSortService(IColumnRepository columnRepository)
         {
-            db = context;
+            _columnRepository = columnRepository;
         }
         public async Task<Column> ReduceAfterDeleteAsync(int id)
         {
-            var column = db.Columns.FirstOrDefault(x => x.Id == id);
-            var result =await db.Columns
-                .Where(x => x.BoardId == column.BoardId)
-                .Where(x => x.IsActive == true)
-                .OrderBy(x => x.SortBy)
-                .Skip(column.SortBy+1)
-                .ToListAsync();
+            var column = await _columnRepository.GetOne(id);
+
+            var result = await _columnRepository
+                .GetAllWithSkip(column.BoardId, column.SortBy + 1);
+
             for (int i = 0; i < result.Count; i++)
             {
                 result[i].SortBy--;
+                await _columnRepository.Update(result[i]);
             }
-            await db.SaveChangesAsync();
             return column;
         }
 
-        public void SwitchColumns(int prevPosition, Column column)
+        public async Task SwitchColumns(int prevPosition, ColumnViewDTO column)
         {
             int currentPosition = column.SortBy;
             if (currentPosition < prevPosition)
             {
-                var result = db.Columns
-                .Where(x => x.BoardId == column.BoardId)
-                .OrderBy(x => x.SortBy)
-                .Skip(currentPosition)
-                .ToList();
+                var result = await _columnRepository
+                .GetAllWithSkip(column.BoardId, currentPosition);
 
                 for (int i = 0; i < result.Count; i++)
                 {
                     if (result[i].SortBy < prevPosition)
                     {
                         result[i].SortBy++;
+                        await _columnRepository.Update(result[i]);
                     }
                 }
             }
             else
             {
-                var result = db.Columns
-                .Where(x => x.BoardId == column.BoardId)
-                .OrderBy(x => x.SortBy)
-                .Skip(prevPosition + 1)
-                .Take(currentPosition - prevPosition)
-                .ToList();
+                var result = await _columnRepository
+                .GetAllWithSkip(column.BoardId, currentPosition);
+                result = result.Take(currentPosition - prevPosition).ToList();
 
                 for (int i = 0; i < result.Count; i++)
                 {
                     result[i].SortBy--;
+                    await _columnRepository.Update(result[i]);
                 }
             }
-            db.SaveChanges();
         }
     }
 }

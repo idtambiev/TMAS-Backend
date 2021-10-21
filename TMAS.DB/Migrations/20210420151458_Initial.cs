@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace TMAS.DB.Migrations
+namespace TMAS.BLL.Migrations
 {
-    public partial class InitialDb : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,6 +28,7 @@ namespace TMAS.DB.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "varchar(30)", nullable: false),
                     Lastname = table.Column<string>(type: "varchar(30)", nullable: false),
+                    Photo = table.Column<string>(type: "varchar(100)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -178,28 +179,27 @@ namespace TMAS.DB.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Histories",
+                name: "BoardsAccesses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ActionType = table.Column<byte>(type: "tinyint", nullable: false),
-                    ActionObject = table.Column<string>(type: "varchar(100)", nullable: false),
-                    SourceAction = table.Column<int>(type: "int", nullable: true),
-                    DestinationAction = table.Column<int>(type: "int", nullable: true),
-                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    BoardId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Histories", x => x.Id);
+                    table.PrimaryKey("PK_BoardsAccesses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Histories_AspNetUsers_AuthorId",
-                        column: x => x.AuthorId,
+                        name: "FK_BoardsAccesses_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_BoardsAccesses_Boards_BoardId",
+                        column: x => x.BoardId,
+                        principalTable: "Boards",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -227,6 +227,38 @@ namespace TMAS.DB.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Histories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ActionType = table.Column<byte>(type: "tinyint", nullable: false),
+                    ActionObject = table.Column<string>(type: "varchar(100)", nullable: false),
+                    SourceAction = table.Column<int>(type: "int", nullable: true),
+                    DestinationAction = table.Column<int>(type: "int", nullable: true),
+                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BoardId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Histories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Histories_AspNetUsers_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Histories_Boards_BoardId",
+                        column: x => x.BoardId,
+                        principalTable: "Boards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Cards",
                 columns: table => new
                 {
@@ -249,6 +281,28 @@ namespace TMAS.DB.Migrations
                         name: "FK_Cards_Columns_ColumnId",
                         column: x => x.ColumnId,
                         principalTable: "Columns",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Files",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "varchar(100)", nullable: false),
+                    FileType = table.Column<string>(type: "varchar(30)", nullable: false),
+                    Path = table.Column<string>(type: "varchar(100)", nullable: false),
+                    CardId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Files", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Files_Cards_CardId",
+                        column: x => x.CardId,
+                        principalTable: "Cards",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -298,6 +352,16 @@ namespace TMAS.DB.Migrations
                 column: "BoardUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BoardsAccesses_BoardId",
+                table: "BoardsAccesses",
+                column: "BoardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BoardsAccesses_UserId",
+                table: "BoardsAccesses",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Cards_ColumnId",
                 table: "Cards",
                 column: "ColumnId");
@@ -308,9 +372,19 @@ namespace TMAS.DB.Migrations
                 column: "BoardId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Files_CardId",
+                table: "Files",
+                column: "CardId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Histories_AuthorId",
                 table: "Histories",
                 column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Histories_BoardId",
+                table: "Histories",
+                column: "BoardId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -331,13 +405,19 @@ namespace TMAS.DB.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Cards");
+                name: "BoardsAccesses");
+
+            migrationBuilder.DropTable(
+                name: "Files");
 
             migrationBuilder.DropTable(
                 name: "Histories");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Cards");
 
             migrationBuilder.DropTable(
                 name: "Columns");

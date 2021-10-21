@@ -6,9 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using TMAS.BLL.Services;
 using TMAS.DB.Models;
-using TMAS.DB.DTO;
+using TMAS.DAL.DTO;
 using Microsoft.AspNetCore.Authorization;
 using TMAS.Controllers.Base;
+using TMAS.BLL.Interfaces;
+using TMAS.DAL.DTO.View;
 
 namespace TMAS.Controllers
 {
@@ -16,55 +18,46 @@ namespace TMAS.Controllers
     [ApiController]
     public class BoardsController : BaseController
     {
-       private readonly BoardService _boardService;
-        public BoardsController(BoardService service)
+       private readonly IBoardService _boardService;
+        public BoardsController(IBoardService service)
         {
             _boardService = service;
         }
 
         [HttpGet("get")]
         [Authorize]
-        public async Task<IActionResult> GetBoards()
+        public async Task<ActionResult<IEnumerable<BoardViewDTO>>> GetBoards()
         {
             var userId = GetUserId();
-            return Ok(await _boardService.GetAll(userId));
+            var boards = await _boardService.GetAll(userId);
+            return Ok(boards);
         }
+
 
         [HttpGet("get/one")]
         [Authorize]
-        public async Task<IActionResult> GetOneBoard(int boardId)
+        public async Task<ActionResult<BoardViewDTO>> GetOneBoard([FromQuery] int id)
         {
-            return Ok(await _boardService.GetOne(boardId));
+            var board = await _boardService.GetOne(id);
+            return Ok(board);
         }
 
         [HttpGet("search")]
         [Authorize]
-        public async Task<IActionResult> FindBoards(string text)
+        public async Task<ActionResult<IEnumerable<BoardViewDTO>>> FindBoards([FromQuery]string text)
         {
             var userId = GetUserId();
-            return Ok(await _boardService.FindBoard(userId, text));
+            var boards = await _boardService.FindBoard(userId, text);
+            return Ok(boards);
         }
 
-        [HttpPost("create")]
+        [HttpGet("create")]
         [Authorize]
-        public async Task<ActionResult<Board>> CreateNewBoard(string title)
+        public async Task<ActionResult<BoardViewDTO>> CreateNewBoard([FromQuery] string title)
         {
             var id = GetUserId();
-            return Ok(await _boardService.Create(title, id));
-        }
-
-        [HttpPut("update")]
-        [Authorize]
-        public async Task<ActionResult<Board>> UpdateBoard(Board board)
-        {
-            return Ok(await _boardService.Update(board));
-        }
-
-        [HttpDelete("delete")]
-        [Authorize]
-        public async Task<ActionResult<Board>> DeleteBoard(int boardId)
-        {
-            return Ok(await _boardService.Delete(boardId));
+            var createResult = await _boardService.Create(title, id);
+            return Ok(createResult);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace TMAS.DAL.Interfaces
     public interface IBoardRepository:IBaseRepository
     {
         Task<IEnumerable<Board>> GetAll(Guid userId);
-        Task<Board> GetOne(int id);
+        Task<Board> GetOne(int boardId);
         Task<IEnumerable<Board>> FindBoard(Guid id, string search);
         Task<Board> Create(Board board);
         Task<Board> Update(Board board);
